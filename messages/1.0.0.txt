@@ -1,0 +1,3 @@
+Directory Settings has been replaced by SuperSettings. Please rename
+.sublime-settings files to Preferences.sublime-settings. More information
+can be found at https://github.com/TobyGiacometti/SublimeSuperSettings.
