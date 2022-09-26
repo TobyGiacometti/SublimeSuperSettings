@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+set -o errtrace
+set -o pipefail
+
+#---
+# @stdout Help
+print_help() {
+	cat <<-EOF
+		Run tests.
+
+		Usage:
+		  $script_name
+		  $script_name -h
+
+		Options:
+		  -h  Print help.
+	EOF
+}
+
+script_name=$(basename -- "$0")
+project_dir=$(cd -- "$(dirname -- "$0")/.." &>/dev/null && pwd) || exit
+export DISPLAY=:99
+subl_packages_dir=~/.config/sublime-text-3/Packages
+subl_package_dir=$subl_packages_dir/SublimeSuperSettings
+exit_status=0
+
+while getopts :h option; do
+	case $option in
+		h)
+			print_help
+			exit
+			;;
+		\?)
+			echo "Option is unknown: -$OPTARG" >&2
+			exit 1
+			;;
+	esac
+done
+
+Xvfb "$DISPLAY" -screen 0 1024x768x16 &
+ln -s -- "$project_dir" "$subl_package_dir"
+python3 -- "$subl_packages_dir/UnitTesting/sbin/run_tests.py" "${subl_package_dir##*/}"
+exit_status=$?
+rm -- "$subl_package_dir"
+pkill sublime_text
+pkill Xvfb
+
+exit "$exit_status"
